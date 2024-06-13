@@ -3,7 +3,11 @@
 Welcome to music dream visualizer! This is a LLM course project built by three undergraduate students, which explores the potential of LLM-based song generating. In this project, we tried to compose a song by just offering one prompt to the pipeline.
 
 The whole pipeline:
-
+<table style="width:100%">
+  <tr>
+    <td><img src="resources/pipeline.png" alt="Pipeline" height="250"></td>
+  </tr>
+</table>
 
 ## Get Started
 To get started, you need to set the environment:
@@ -40,3 +44,15 @@ Files in the project_output directory are generated during the inference.
 
 To run the pipeline, you also need an openai api-key, SongComposer model from Mar2Ding/songcomposer_sft on huggingface, and DiffSinger model from https://github.com/MoonInTheRiver/DiffSinger/tree/master (SVS version, Opencpop dataset, link B). If you run this on the server of professor Xu, these two models are already loaded in /ssdshare/.
 
+## Run The Pipeline
+If you run chat.py in conda environment, you need:
+```sh
+python chat.py
+```
+And you may want to modify the prompt in line 532.
+
+If you run chat_gradio.py in conda environment, you need:
+```sh
+python chat_gradio.py
+```
+Then you are able to access the interface on http://127.0.0.1:7860
