@@ -18,8 +18,11 @@ import math
 import copy
 from tqdm import tqdm
 from threading import Thread
-OPENAI_API_KEY = os.environ["OPENAI_URL"]
+os.environ['HTTP_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
+os.environ['HTTPS_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
+os.environ['ALL_PROXY']="socks5://Clash:QOAF8Rmd@10.1.0.213:7893"
 
+OPENAI_API_KEY = os.environ["OPENAIURL"]
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
@@ -68,7 +71,7 @@ def get_image_dalle(prompt, model="dall-e-3", size="1024x1024", quality="standar
 
 ### get_image_response和threading_query函数为多线程版本的get_image_dalle
 def get_image_response(prompt, model="dall-e-3", size="1024x1024", quality="standard", n=1, timeout=5000):
-    client = OpenAI(api=os.environ['OPENAI_URL'])
+    # client = OpenAI(OPENAI_API_KEY)
     response = client.images.generate(
         model=model,
         prompt=prompt,
@@ -410,7 +413,7 @@ def add_zimu(final_lyrics, folder_open = "/root/project_output/gen_images", fold
         save_path = os.path.join(folder_save, f"{i}.jpg")
         imgnew.save(save_path)    
     
-def prepare_times(result_list_copy, res_time):
+def prepare_times(result_list_copy):
     # 准备视频中的图片显示时长
     wordcount = []
     for item in result_list_copy:
@@ -524,96 +527,43 @@ def save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_
 geci_ckpt_path = "/ssdshare/SongComposer" # your path
 geci_tokenizer = AutoTokenizer.from_pretrained(geci_ckpt_path, trust_remote_code=True)
 # 先half再cuda
-geci_model = AutoModel.from_pretrained(geci_ckpt_path, trust_remote_code=True).half().cuda('cuda:1')
+geci_model = AutoModel.from_pretrained(geci_ckpt_path, trust_remote_code=True).half().to('cuda:1')
 
-# lyrics = get_lyrics(client, "我爱你", model="gpt-4o")
-# lyrics = filter_lyrics(lyrics)
-# commas = get_commas(lyrics)
-# direct_comma_position = get_direct_comma_position(lyrics)
+lyrics = get_lyrics(client, "以考前拜林丹，专治理综萎为题写一首中文歌。只显示歌词。只用逗号或句号断句。使用<H>分割行，不超过10句歌词。", model="gpt-4o")
+print(lyrics)
+lyrics = filter_lyrics(lyrics)
+commas = get_commas(lyrics)
+direct_comma_position = get_direct_comma_position(lyrics)
 
-# s, results_str = get_geci(lyrics, geci_model, geci_tokenizer)
-# result_list = post_process_geci(results_str)
-# result_list_copy = insert_commas_to_geci(result_list, direct_comma_position)
+s, results_str = get_geci(lyrics, geci_model, geci_tokenizer)
+result_list = post_process_geci(results_str)
+result_list_copy = insert_commas_to_geci(result_list, direct_comma_position)
 
-# L = extract_key_info(s)
-# res_pitch, res_time, res_lyric = get_rests(commas, L)
+L = extract_key_info(s)
+res_pitch, res_time, res_lyric = get_rests(commas, L)
 
-# file_path_lyric = '/root/project_output/lyric_output.txt'
-# file_path_pitch = '/root/project_output/pitch_output.txt'
-# file_path_time = '/root/project_output/time_output.txt'
-# save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_path_pitch, file_path_time)
+final_lyrics = get_final_lyrics(result_list)
+generate_images(final_lyrics, model="dall-e-3")
+add_zimu(final_lyrics)
+duration, total_time = prepare_times(result_list_copy)
 
-# # branch 1
-# final_lyrics = get_final_lyrics(result_list)
-# generate_images(final_lyrics, model="dall-e-3")
-# add_zimu(final_lyrics)
-# duration, total_time = prepare_times(result_list_copy, res_time=res_time)
+file_path_lyric = '/root/project_output/lyric_output.txt'
+file_path_pitch = '/root/project_output/pitch_output.txt'
+file_path_time = '/root/project_output/time_output.txt'
+save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_path_pitch, file_path_time)
 
-# file_path="/root/project_output/output.mp4"
-# image_files_dir="/root/project_output/text_images"
-# wav_file_dir = "/root/DiffSinger/infer_out/example_out.wav"
-# mp4_dir = "/root/project_output/final.mp4"
-# get_final_video(total_time, duration, file_path=file_path, image_files_dir=image_files_dir, fps=10)
 
-# # branch 2
-# os.system("python inference/svs/my_infer.py --config usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name 0228_opencpop_ds100_rel")
+file_path="/root/project_output/output.mp4"
+image_files_dir="/root/project_output/text_images"
+wav_file_dir = "/ssdshare/DiffSinger/infer_out/example_out.wav"
+mp4_dir = "/root/project_output/final.mp4"
+get_final_video(total_time, duration, file_path=file_path, image_files_dir=image_files_dir, fps=10)
 
-# # merge
-# video = VideoFileClip(file_path)
-# audio = AudioFileClip(wav_file_dir)
+os.environ['PYTHONPATH'] = '/ssdshare/DiffSinger'
+os.environ['MY_DS_EXP_NAME'] = '0228_opencpop_ds100_rel'
+os.system("python /ssdshare/DiffSinger/inference/svs/my_infer.py --config /ssdshare/DiffSinger/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name 0228_opencpop_ds100_rel")
+video = VideoFileClip(file_path)
+audio = AudioFileClip(wav_file_dir)
 
-# video = video.set_audio(audio)
-# video.write_videofile(mp4_dir)
-
-def predict(message):
-
-#### Your Task ####
-# Insert code here to perform the inference
-
-    lyrics = get_lyrics(client, message, model="gpt-4o")
-    lyrics = filter_lyrics(lyrics)
-    commas = get_commas(lyrics)
-    direct_comma_position = get_direct_comma_position(lyrics)
-
-    s, results_str = get_geci(lyrics, geci_model, geci_tokenizer)
-    result_list = post_process_geci(results_str)
-    result_list_copy = insert_commas_to_geci(result_list, direct_comma_position)
-
-    L = extract_key_info(s)
-    res_pitch, res_time, res_lyric = get_rests(commas, L)
-
-    file_path_lyric = '/root/project_output/lyric_output.txt'
-    file_path_pitch = '/root/project_output/pitch_output.txt'
-    file_path_time = '/root/project_output/time_output.txt'
-    save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_path_pitch, file_path_time)
-
-    # branch 1
-    final_lyrics = get_final_lyrics(result_list)
-    generate_images(final_lyrics, model="dall-e-3")
-    add_zimu(final_lyrics)
-    duration, total_time = prepare_times(result_list_copy, res_time=res_time)
-
-    file_path="/root/project_output/output.mp4"
-    image_files_dir="/root/project_output/text_images"
-    wav_file_dir = "/ssdshare/DiffSinger/infer_out/example_out.wav"
-    mp4_dir = "/root/project_output/final.mp4"
-    get_final_video(total_time, duration, file_path=file_path, image_files_dir=image_files_dir, fps=10)
-
-    # branch 2
-    os.system("python /ssdshare/DiffSinger/inference/svs/my_infer.py --config /ssdshare/DiffSinger/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name 0228_opencpop_ds100_rel")
-
-    # merge
-    video = VideoFileClip(file_path)
-    audio = AudioFileClip(wav_file_dir)
-
-    video = video.set_audio(audio)
-    video.write_videofile(mp4_dir, codec='libx264')
-
-    return gr.Video(mp4_dir)
-
-#### End Task ####
-
-# gr.ChatInterface(predict).launch(server_name="0.0.0.0")
-input_interface = gr.Textbox(label="Please input the lyrics you want to generate the video.")
-iface = gr.Interface(fn=predict, inputs=input_interface, outputs="video")
-iface.launch(server_name="0.0.0.0")
+video = video.set_audio(audio)
+video.write_videofile(mp4_dir)
