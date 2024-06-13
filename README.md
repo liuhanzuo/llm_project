@@ -56,3 +56,8 @@ If you run chat_gradio.py in conda environment, you need:
 python chat_gradio.py
 ```
 Then you are able to access the interface on http://127.0.0.1:7860
+
+## Some Details
+ - Our current pipeline only support generating Chinese songs.
+ - To ensure that the songcomposer model can run stably, you should tell the gpt to create no more than 10 sentences for lyrics in the prompt.
+ - Two demos are provided in the /resources directory.
