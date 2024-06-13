@@ -18,13 +18,6 @@ import math
 import copy
 from tqdm import tqdm
 from threading import Thread
-# os.environ['HTTP_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-# os.environ['HTTPS_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-# os.environ['ALL_PROXY']="socks5://Clash:QOAF8Rmd@10.1.0.213:7893"
-
-# OPENAI_API_KEY = os.environ["OPENAIURL"]
-# client = OpenAI(api_key=OPENAI_API_KEY)
-
 
 ## get the 歌词 from gpt-4o
 def get_response(client, prompt, model="gpt-4o"):
@@ -436,13 +429,6 @@ def prepare_times(result_list_copy, res_time):
 
     total_time = sum(duration)
     return duration, total_time
-    
-# def post_process_res_lyric(res_lyric):
-#     for i in range(len(res_lyric)):
-#         if res_lyric[i] == 'AP':
-#             if i + 1 < len(res_lyric) and res_lyric[i + 1] == 'AP':
-#                 res_lyric[i] = '啊'
-#     return res_lyric
 
 def generate_video_new(file_path="/root/project_output/output.mp4", image_files_dir=".", postfix=".jpg", fps=10, durations=None):
     # 控制每张图片的显示时间
@@ -490,16 +476,12 @@ def save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_
             res_time_.append(res_time[i])
             continue
         if(res_lyric[i] == 'AP' and res_lyric[i+1] == 'AP'):
-            # print('a')
-            # print(i)
             res_lyric_.append('AP')
             res_pitch_.append('rest')
             real_time = float(res_time[i])+float(res_time[i+1])
             res_time_.append(str(real_time))
             flag = 1
         else:
-            # print('aaa')
-            # print(i)
             res_lyric_.append(res_lyric[i])
             res_pitch_.append(res_pitch[i])
             res_time_.append(res_time[i])
@@ -512,10 +494,6 @@ def save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_
     res_lyric_ = ''.join(res_lyric_)
     res_pitch_ = '|'.join(res_pitch_)
     res_time_ = '|'.join(res_time_)
-    # res_lyric = post_process_res_lyric(res_lyric)
-    # res_lyric = ''.join(x for x in res_lyric)
-    # res_pitch = '|'.join(x for x in res_pitch)
-    # res_time = '|'.join(str(x) for x in res_time)"cuda:1"
     with open(file_path_lyric, 'w') as f:
         f.write(res_lyric_)
     with open(file_path_pitch, 'w') as f:
@@ -529,45 +507,6 @@ geci_tokenizer = AutoTokenizer.from_pretrained(geci_ckpt_path, trust_remote_code
 # 先half再cuda
 geci_model = AutoModel.from_pretrained(geci_ckpt_path, trust_remote_code=True).half().to('cuda:1')
 
-# lyrics = get_lyrics(client, "我爱你", model="gpt-4o")
-# lyrics = filter_lyrics(lyrics)
-# commas = get_commas(lyrics)
-# direct_comma_position = get_direct_comma_position(lyrics)
-
-# s, results_str = get_geci(lyrics, geci_model, geci_tokenizer)
-# result_list = post_process_geci(results_str)
-# result_list_copy = insert_commas_to_geci(result_list, direct_comma_position)
-
-# L = extract_key_info(s)
-# res_pitch, res_time, res_lyric = get_rests(commas, L)
-
-# file_path_lyric = '/root/project_output/lyric_output.txt'
-# file_path_pitch = '/root/project_output/pitch_output.txt'
-# file_path_time = '/root/project_output/time_output.txt'
-# save_lyric_pitch_time(res_lyric, res_pitch, res_time, file_path_lyric, file_path_pitch, file_path_time)
-
-# # branch 1
-# final_lyrics = get_final_lyrics(result_list)
-# generate_images(final_lyrics, model="dall-e-3")
-# add_zimu(final_lyrics)
-# duration, total_time = prepare_times(result_list_copy, res_time=res_time)
-
-# file_path="/root/project_output/output.mp4"
-# image_files_dir="/root/project_output/text_images"
-# wav_file_dir = "/root/DiffSinger/infer_out/example_out.wav"
-# mp4_dir = "/root/project_output/final.mp4"
-# get_final_video(total_time, duration, file_path=file_path, image_files_dir=image_files_dir, fps=10)
-
-# # branch 2
-# os.system("python inference/svs/my_infer.py --config usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name 0228_opencpop_ds100_rel")
-
-# # merge
-# video = VideoFileClip(file_path)
-# audio = AudioFileClip(wav_file_dir)
-
-# video = video.set_audio(audio)
-# video.write_videofile(mp4_dir)
-
 def predict(message):
 #### Your Task ####
 # Insert code here to perform the inference
@@ -579,20 +518,19 @@ def predict(message):
     OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
     client = OpenAI(api_key=OPENAI_API_KEY)
 
-    print(0)
     lyrics = get_lyrics(client, message, model="gpt-4o")
     lyrics = filter_lyrics(lyrics)
     commas = get_commas(lyrics)
     direct_comma_position = get_direct_comma_position(lyrics)
-    print(1)
+
     s, results_str = get_geci(lyrics, geci_model, geci_tokenizer)
-    print(2)
+
     result_list = post_process_geci(results_str)
     result_list_copy = insert_commas_to_geci(result_list, direct_comma_position)
-    print(3)
+
     L = extract_key_info(s)
     res_pitch, res_time, res_lyric = get_rests(commas, L)
-    print(4)
+
     file_path_lyric = '/root/project_output/lyric_output.txt'
     file_path_pitch = '/root/project_output/pitch_output.txt'
     file_path_time = '/root/project_output/time_output.txt'
@@ -600,87 +538,30 @@ def predict(message):
 
     # branch 1
     final_lyrics = get_final_lyrics(result_list)
-    print(5)
     generate_images(client, final_lyrics, model="dall-e-3")
-    print(6)
     add_zimu(final_lyrics)
-    print(7)
     duration, total_time = prepare_times(result_list_copy, res_time=res_time)
 
     file_path="/root/project_output/output.mp4"
     image_files_dir="/root/project_output/text_images"
     wav_file_dir = "/ssdshare/DiffSinger/infer_out/example_out.wav"
     mp4_dir = "/root/project_output/final.mp4"
-    print(8)
     get_final_video(total_time, duration, file_path=file_path, image_files_dir=image_files_dir, fps=10)
-    print(9)
+
     # branch 2
     os.environ['PYTHONPATH'] = '/ssdshare/DiffSinger'
     os.environ['MY_DS_EXP_NAME'] = '0228_opencpop_ds100_rel'
     os.system("python /ssdshare/DiffSinger/inference/svs/my_infer.py --config /ssdshare/DiffSinger/usr/configs/midi/e2e/opencpop/ds100_adj_rel.yaml --exp_name 0228_opencpop_ds100_rel")
-    print(10)
     # merge
     video = VideoFileClip(file_path)
     audio = AudioFileClip(wav_file_dir)
 
     video = video.set_audio(audio)
     video.write_videofile(mp4_dir, codec='libx264')
-    print(11)
-    
+
     return gr.Video(mp4_dir)
 
-#### End Task ####
 
-# gr.ChatInterface(predict).launch(server_name="0.0.0.0")
 input_interface = gr.Textbox(label="Please input the lyrics you want to generate the video.")
-# iface = gr.Interface(fn=predict, inputs=input_interface, outputs="video")
 iface = gr.Interface(fn=predict, inputs=input_interface, outputs="video")
-# iface.launch(server_name="127.0.0.1", share=True)
 iface.launch(share=True)
-# iface.launch(port=8001)
-# iface.launch()
-
-
-
-
-
-
-
-# import gradio as gr
-# import json
-# from openai import OpenAI
-# import os
-# import re
-# import requests
-# from PIL import Image, ImageFont, ImageDraw
-# from io import BytesIO
-# import time
-# import numpy as np
-# import imageio
-# import concurrent.futures
-# from transformers import AutoTokenizer, AutoModel, StoppingCriteria, StoppingCriteriaList
-# import torch
-# import shutil
-# from moviepy.editor import VideoFileClip, AudioFileClip
-# import math
-# import copy
-# from tqdm import tqdm
-# from threading import Thread
-# # os.environ['HTTP_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-# # os.environ['HTTPS_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-# # os.environ['ALL_PROXY']="socks5://Clash:QOAF8Rmd@10.1.0.213:7893"
-
-# def predict(message):
-#     os.environ['HTTP_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-#     os.environ['HTTPS_PROXY']="http://Clash:QOAF8Rmd@10.1.0.213:7890"
-#     os.environ['ALL_PROXY']="socks5://Clash:QOAF8Rmd@10.1.0.213:7893"
-#     return "hello"
-
-# # gr.ChatInterface(predict).launch(server_name="0.0.0.0")
-# input_interface = gr.Textbox(label="Please input the lyrics you want to generate the video.")
-# # iface = gr.Interface(fn=predict, inputs=input_interface, outputs="video")
-# iface = gr.Interface(fn=predict, inputs=input_interface, outputs="text")
-# # iface.launch(server_name="127.0.0.1", share=True)
-# iface.launch(share=True)
-# # iface.launch(port=8001)
-# # iface.launch()
