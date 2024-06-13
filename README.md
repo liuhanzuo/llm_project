@@ -2,7 +2,7 @@
 ## Introduction
 Welcome to music dream visualizer! This is a LLM course project built by three undergraduate students, which explores the potential of LLM-based song generating. In this project, we tried to compose a song by just offering one prompt to the pipeline.
 
-The whole pipeline:
+The whole pipeline looks like:
 <table style="width:100%">
   <tr>
     <td><img src="resources/pipeline.png" alt="Pipeline" height="250"></td>
@@ -42,7 +42,7 @@ You should make your directory structure look like:
 ```
 Files in the project_output directory are generated during the inference.
 
-To run the pipeline, you also need an openai api-key, SongComposer model from Mar2Ding/songcomposer_sft on huggingface, and DiffSinger model from https://github.com/MoonInTheRiver/DiffSinger/tree/master (SVS version, Opencpop dataset, link B). If you run this on the server of professor Xu, these two models are already loaded in /ssdshare/.
+To run the pipeline, you also need an openai api-key, SongComposer model from [Mar2Ding/songcomposer_sft](https://huggingface.co/Mar2Ding/songcomposer_sft) on huggingface, and DiffSinger model from https://github.com/MoonInTheRiver/DiffSinger/tree/master (SVS version, Opencpop dataset, link B). If you run this on the server of professor Xu, these two models are already loaded in /ssdshare/.
 
 ## Run The Pipeline
 If you run chat.py in conda environment, you need:
@@ -60,4 +60,4 @@ Then you are able to access the interface on http://127.0.0.1:7860
 ## Some Details
  - Our current pipeline only support generating Chinese songs.
  - To ensure that the songcomposer model can run stably, you should tell the gpt to create no more than 10 sentences for lyrics in the prompt.
- - Two demos are provided in the /resources directory.
+ - Two demos are provided in the resources directory.
