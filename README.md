@@ -1,4 +1,5 @@
 # Music Dream Visualizer (MDV)
+#### Contributors: Yifeng Liu, Hanzuo Liu, Rui Luo (IIIS, Tsinghua University)
 ## Introduction
 Welcome to music dream visualizer! This is a LLM course project built by three undergraduate students, which explores the potential of LLM-based song generating. In this project, we tried to compose a song by just offering one prompt to the pipeline.
 
